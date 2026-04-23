@@ -11,6 +11,63 @@ This journal tracks the progress of the tutorial, documenting what was learned, 
 
 ---
 
+## How Antigravity Works
+
+Antigravity operates as an autonomous coding partner, bridging the gap between human intent and functional software through a sophisticated loop of planning, execution, and verification.
+
+```mermaid
+graph TD
+    User([<b>Human User</b>]) -- "1. Task & Review" --> AgentManager[<b>Agent Manager</b><br/>Mission Controller / Inbox / Chat]
+    User -- "2. Describe Task / Edit Code" --> AgentManager
+    
+    subgraph Interface ["Tools & Interface"]
+        AgentManager
+        Editor[<b>Code Editor</b><br/>VS Code Style: Files & Terminal]
+    end
+
+    subgraph Workflow ["5. Agent Workflow"]
+        Plan[Plan] --> Code[Code]
+        Code --> Run[Run]
+        Run --> Test[Test]
+        Test -- "Iterate" --> Plan
+    end
+
+    AgentManager -- "3. Task Execution" --> Workflow
+    Workflow <--> Editor
+
+    subgraph Engine ["6. Core Components"]
+        Model[<b>Models</b><br/>Gemini 3 / Claude / GPT]
+        Browser[<b>Browser</b><br/>Built-in Chrome]
+        MCP[<b>MCP Servers</b><br/>Slack, n8n, Sheets, etc.]
+    end
+
+    Workflow <--> Engine
+
+    subgraph Production ["Outputs"]
+        Artifacts[<b>7. Artifacts</b><br/>Task Lists, Plans, Screenshots]
+        Workspace[<b>8. Workspace</b><br/>Project Files & Source Code]
+    end
+
+    Workflow --> Production
+    Production -.-> User
+```
+
+### Core Principles
+
+1.  **Human-Centric Start**: The process always begins with the human user providing a task and eventually reviewing the results.
+2.  **Collaborative Control**: Users can describe tasks in natural language and directly edit code alongside the agent.
+3.  **The Agent Manager**: This acts as the "Mission Controller" or Inbox, where chat, progress tracking, and task descriptions live.
+4.  **Integrated Environment**: A full-featured code editor (VS Code style) provides access to files, code, and a live terminal.
+5.  **Autonomous Workflow**: Once a task is assigned, the agent follows a continuous loop: **Plan $\rightarrow$ Code $\rightarrow$ Run $\rightarrow$ Test**.
+6.  **Powerful Components**: The agent leverages three primary pillars:
+    *   **Models**: Advanced LLMs like Gemini 3, Claude, or GPT.
+    *   **Browser**: A built-in Chrome instance for web research and testing.
+    *   **MCP Servers**: Connections to external tools like Slack, n8n, or Google Sheets.
+7.  **Evidence-Based Progress**: The agent generates **Artifacts** such as task lists, implementation plans, screenshots, and screen recordings to document its journey.
+8.  **Workspace Integration**: Everything the agent builds is written directly to the project **Workspace**, managing files and code in real-time.
+
+---
+
 ### Step 1: Initial Setup
 *Status: Completed*
 
@@ -23,3 +80,4 @@ This journal tracks the progress of the tutorial, documenting what was learned, 
     - Created the initial `README.md` with the project context.
 - **Key Learnings**:
     - Setting up the environment for collaborative AI development.
+
