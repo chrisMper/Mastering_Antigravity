@@ -229,6 +229,106 @@ a:hover {
   gap: 0.5rem;
 }
 
+.transaction-group {
+  margin-bottom: 2.5rem;
+}
+
+.transaction-group-header {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  padding-left: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.transaction-group-header::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--border-color), transparent);
+}
+
+.premium-card {
+  background: var(--surface-color);
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  border: 1px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.premium-card:hover {
+  transform: translateY(-2px) scale(1.005);
+  border-color: var(--jm-light-blue);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  background: var(--bg-color);
+}
+
+.category-icon-wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.premium-card:hover .category-icon-wrapper {
+  transform: rotate(-10deg);
+}
+
+.transaction-main {
+  flex: 1;
+  margin-left: 1.25rem;
+}
+
+.transaction-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.transaction-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.transaction-amount-area {
+  text-align: right;
+  min-width: 120px;
+}
+
+.transaction-amount {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.glass-search-bar {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  border-radius: 12px;
+}
+
+[data-theme='dark'] .glass-search-bar {
+  background: rgba(26, 34, 84, 0.7);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 .sidebar .nav-links {
   display: flex;
   flex-direction: column;

@@ -118,19 +118,43 @@ export default function App() {
       <Modal 
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 
-        title="Settings"
-        footer={<button className="jm-btn jm-btn-primary" onClick={() => setIsSettingsOpen(false)}>Close</button>}
+        title="Settings & Preferences"
+        footer={<button className="jm-btn jm-btn-primary w-full" onClick={() => setIsSettingsOpen(false)}>Save Preferences</button>}
       >
-        <div className="flex flex-col gap-4">
-          <div className="form-group">
-            <label className="jm-label">Default Currency</label>
-            <select className="jm-select"><option>USD ($)</option></select>
+        <div className="flex flex-col gap-6">
+          <div className="p-4 rounded-xl bg-slate-50 flex items-center gap-4 border" style={{ borderColor: 'var(--border-color)' }}>
+            <img src={user.avatar} className="avatar" style={{ width: 50, height: 50 }} alt="User" />
+            <div>
+              <div className="font-bold">{user.name}</div>
+              <div className="text-small text-secondary">{user.email}</div>
+            </div>
           </div>
-          <div className="form-group">
-            <label className="jm-label">Locale</label>
-            <select className="jm-select"><option>English (US)</option></select>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="form-group mb-0">
+              <label className="jm-label">Currency</label>
+              <select className="jm-select"><option>USD ($)</option><option>EUR (€)</option></select>
+            </div>
+            <div className="form-group mb-0">
+              <label className="jm-label">Language</label>
+              <select className="jm-select"><option>English (US)</option></select>
+            </div>
           </div>
-          <p className="text-small text-secondary">Settings are currently in demo mode.</p>
+
+          <div className="form-group">
+            <label className="jm-label">Monthly Spending Limit</label>
+            <input type="number" className="jm-input" defaultValue={user.monthlySpendingLimit} />
+          </div>
+
+          <div className="flex items-center justify-between p-3 border-t">
+            <span className="font-medium">Dark Mode Appearance</span>
+            <button 
+              className={`jm-btn ${isDarkMode ? 'jm-btn-primary' : 'jm-btn-secondary'}`}
+              onClick={() => setIsDarkMode(!isDarkMode)}
+            >
+              {isDarkMode ? 'Enabled' : 'Disabled'}
+            </button>
+          </div>
         </div>
       </Modal>
 
@@ -138,17 +162,35 @@ export default function App() {
       <Modal 
         isOpen={isNotificationsOpen} 
         onClose={() => setIsNotificationsOpen(false)} 
-        title="Notifications"
-        footer={<button className="jm-btn jm-btn-primary" onClick={() => setIsNotificationsOpen(false)}>Close</button>}
+        title="Recent Activity"
+        footer={<button className="jm-btn jm-btn-secondary w-full" onClick={() => setIsNotificationsOpen(false)}>Dismiss All</button>}
       >
         <div className="flex flex-col gap-3">
-          <div className="p-3 rounded-lg border" style={{ borderColor: 'var(--border-color)' }}>
-            <div className="font-semibold">Budget Alert</div>
-            <div className="text-small text-secondary">You have reached 80% of your Food budget.</div>
+          <div className="p-4 rounded-xl border-l-4 border-l-blue-500 bg-blue-50/30 flex gap-3">
+            <div className="p-2 bg-blue-500 text-white rounded-lg h-fit"><Bell size={18} /></div>
+            <div>
+              <div className="font-bold text-small">System Update</div>
+              <div className="text-small text-secondary">Your dashboard has been upgraded to v1.2. New analytics views available.</div>
+              <div className="text-caption mt-1 opacity-60">2 hours ago</div>
+            </div>
           </div>
-          <div className="p-3 rounded-lg border" style={{ borderColor: 'var(--border-color)' }}>
-            <div className="font-semibold">Goal Achieved!</div>
-            <div className="text-small text-secondary">Congratulations! You saved $2,000 for "New Laptop".</div>
+
+          <div className="p-4 rounded-xl border-l-4 border-l-green-500 bg-green-50/30 flex gap-3">
+            <div className="p-2 bg-green-500 text-white rounded-lg h-fit"><Target size={18} /></div>
+            <div>
+              <div className="font-bold text-small">Goal Milestone</div>
+              <div className="text-small text-secondary">You've reached 50% of your "Vacation" goal. Keep it up!</div>
+              <div className="text-caption mt-1 opacity-60">Yesterday</div>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50/30 flex gap-3">
+            <div className="p-2 bg-amber-500 text-white rounded-lg h-fit"><Bell size={18} /></div>
+            <div>
+              <div className="font-bold text-small">Spending Warning</div>
+              <div className="text-small text-secondary">You have spent 90% of your Entertainment budget for April.</div>
+              <div className="text-caption mt-1 opacity-60">3 days ago</div>
+            </div>
           </div>
         </div>
       </Modal>
