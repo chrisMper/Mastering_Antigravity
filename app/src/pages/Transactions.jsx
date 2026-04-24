@@ -4,7 +4,7 @@ import { Search, Filter, Plus, Edit2, Trash2 } from 'lucide-react';
 import Modal from '../components/Modal';
 
 export default function Transactions() {
-  const { transactions, addTransaction } = useFinance();
+  const { transactions, addTransaction, deleteTransaction, updateTransaction } = useFinance();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);

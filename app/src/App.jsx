@@ -6,6 +6,7 @@ import {
   PieChart, FileText, Sun, Moon, Bell, Settings 
 } from 'lucide-react';
 
+import Modal from './components/Modal';
 import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import WalletPage from './pages/Wallet';
@@ -33,24 +34,8 @@ const SidebarItem = ({ icon: Icon, label, path, onClick }) => {
   );
 };
 
-const Modal = ({ isOpen, onClose, title, children, footer }) => {
-  if (!isOpen) return null;
-  return (
-    <div className="jm-modal-overlay" onClick={onClose}>
-      <div className="jm-modal-container" onClick={e => e.stopPropagation()}>
-        <div className="jm-modal-header">
-          <h3 className="font-semibold">{title}</h3>
-          <button className="icon-btn" onClick={onClose}>&times;</button>
-        </div>
-        <div className="jm-modal-body">{children}</div>
-        <div className="jm-modal-footer">{footer}</div>
-      </div>
-    </div>
-  );
-};
-
 export default function App() {
-  const { user } = useFinance();
+  const { user, metrics } = useFinance();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -58,6 +43,9 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
+
+  // Handle case where user is still loading or undefined
+  if (!user) return <div className="flex items-center justify-center h-screen">Loading...</div>;
 
   return (
     <Router>
@@ -92,7 +80,7 @@ export default function App() {
             <div className="flex items-center gap-4">
               <div className="jm-card" style={{ padding: '0.4rem 1rem', borderRadius: '50px', fontSize: '0.875rem' }}>
                 <span className="text-secondary">Balance: </span>
-                <span className="font-bold text-success">$12,450.00</span>
+                <span className="font-bold text-success">${metrics?.totalBalance?.toLocaleString(undefined, {minimumFractionDigits: 2}) || '0.00'}</span>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -105,10 +93,10 @@ export default function App() {
               </button>
               <div className="flex items-center gap-3 pl-4 border-l" style={{ borderColor: 'var(--border-color)' }}>
                 <div className="text-right">
-                  <div className="font-semibold text-small">{user?.name}</div>
+                  <div className="font-semibold text-small">{user.name}</div>
                   <div className="text-caption text-secondary">Premium User</div>
                 </div>
-                <div className="avatar"> {user?.name.charAt(0)} </div>
+                <img src={user.avatar} alt="User" className="avatar" />
               </div>
             </div>
           </header>

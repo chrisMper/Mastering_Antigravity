@@ -3,7 +3,7 @@ import { useFinance } from '../context/FinanceContext';
 import { Download, FileText, Calendar } from 'lucide-react';
 
 export default function Reports() {
-  const { transactions, metrics, user } = useFinance();
+  const { transactions, metrics } = useFinance();
 
   const exportData = (format) => {
     const headers = ['ID', 'Type', 'Amount', 'Category', 'Recipient', 'Status', 'Date'];
@@ -17,27 +17,38 @@ export default function Reports() {
       new Date(t.date).toLocaleDateString()
     ]);
 
-    let content = "";
-    let mimeType = "";
-    let extension = "";
+    const formatCSV = (h, r) => {
+      const escape = (val) => `"${String(val).replace(/"/g, '""')}"`;
+      return [
+        h.map(escape).join(","),
+        ...r.map(row => row.map(escape).join(","))
+      ].join("\n");
+    };
+
+    let blob;
+    let filename = `JM_Solutionss_Report_${new Date().toISOString().split('T')[0]}`;
 
     if (format === 'csv') {
-      content = headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
-      mimeType = "text/csv;charset=utf-8";
-      extension = "csv";
+      const content = formatCSV(headers, rows);
+      blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+      filename += ".csv";
     } else if (format === 'json') {
-      content = JSON.stringify(transactions, null, 2);
-      mimeType = "application/json;charset=utf-8";
-      extension = "json";
+      const content = JSON.stringify(transactions, null, 2);
+      blob = new Blob([content], { type: 'application/json;charset=utf-8;' });
+      filename += ".json";
     }
 
-    const encodedUri = encodeURI("data:" + mimeType + "," + content);
+    if (!blob) return;
+
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `JM_Solutionss_Report.${extension}`);
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handlePrint = () => {
@@ -100,7 +111,7 @@ export default function Reports() {
                   <div className="font-semibold">Financial Summary Q{i} 2026</div>
                   <div className="text-caption text-secondary">Generated on 2026-04-1{i}</div>
                 </div>
-                <button className="icon-btn"><Download size={16} /></button>
+                <button className="icon-btn" title="Download"><Download size={16} /></button>
               </div>
             ))}
           </div>
