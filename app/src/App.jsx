@@ -6,10 +6,8 @@ import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import WalletPage from './pages/Wallet';
 import Goals from './pages/Goals';
-
-// Placeholder Pages
-const Analytics = () => <div><h2>Analytics</h2></div>;
-const Reports = () => <div><h2>Reports</h2></div>;
+import Analytics from './pages/Analytics';
+import Reports from './pages/Reports';
 
 const SidebarItem = ({ icon: Icon, label, path }) => {
   const location = useLocation();

@@ -74,11 +74,44 @@ export const FinanceProvider = ({ children }) => {
   const totalExpense = transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
   const totalBalance = totalIncome - totalExpense;
 
+  const addTransaction = (transaction) => {
+    setTransactions([
+      { id: `t${Date.now()}`, ...transaction, date: Date.now() },
+      ...transactions
+    ]);
+  };
+
+  const deleteTransaction = (id) => {
+    setTransactions(transactions.filter(t => t.id !== id));
+  };
+
+  const addCard = (card) => {
+    setCards([
+      { id: `c${Date.now()}`, ...card, createdAt: Date.now() },
+      ...cards
+    ]);
+  };
+
+  const deleteCard = (id) => {
+    setCards(cards.filter(c => c.id !== id));
+  };
+
+  const updateGoal = (id, amount) => {
+    setGoals(goals.map(g => g.id === id ? { ...g, currentAmount: g.currentAmount + amount } : g));
+  };
+
+  const addGoal = (goal) => {
+    setGoals([
+      { id: `g${Date.now()}`, ...goal, currentAmount: 0, createdAt: Date.now() },
+      ...goals
+    ]);
+  };
+
   const value = {
     user, setUser,
-    transactions, setTransactions,
-    cards, setCards,
-    goals, setGoals,
+    transactions, setTransactions, addTransaction, deleteTransaction,
+    cards, setCards, addCard, deleteCard,
+    goals, setGoals, updateGoal, addGoal,
     budgets, setBudgets,
     metrics: {
       totalIncome,

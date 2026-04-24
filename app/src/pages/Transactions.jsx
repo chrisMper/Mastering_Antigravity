@@ -1,14 +1,51 @@
 import React, { useState } from 'react';
 import { useFinance } from '../context/FinanceContext';
 import { Search, Filter, Plus } from 'lucide-react';
+import Modal from '../components/Modal';
 
 export default function Transactions() {
-  const { transactions } = useFinance();
+  const { transactions, addTransaction } = useFinance();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Form State
+  const [formData, setFormData] = useState({
+    recipientName: '',
+    amount: '',
+    type: 'expense',
+    category: 'Food & Grocery',
+    status: 'completed',
+    notes: ''
+  });
+
+  const categories = [
+    "Salary", "Freelance", "Investments", "Food & Grocery", "Transportation", 
+    "Entertainment", "Healthcare", "Shopping", "Travel", "Subscriptions", "Other"
+  ];
 
   const formatAmount = (amount, type) => {
-    return `${type === 'income' ? '+' : '-'}$${amount.toFixed(2)}`;
+    return `${type === 'income' ? '+' : '-'}$${parseFloat(amount).toFixed(2)}`;
+  };
+
+  const handleAddSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.recipientName || !formData.amount) return;
+    
+    addTransaction({
+      ...formData,
+      amount: parseFloat(formData.amount)
+    });
+    
+    setIsModalOpen(false);
+    setFormData({
+      recipientName: '',
+      amount: '',
+      type: 'expense',
+      category: 'Food & Grocery',
+      status: 'completed',
+      notes: ''
+    });
   };
 
   const filteredTransactions = transactions.filter(tx => {
@@ -25,10 +62,81 @@ export default function Transactions() {
           <h1 className="mb-2">Transactions</h1>
           <p>Track and manage your income and expenses.</p>
         </div>
-        <button className="jm-btn jm-btn-primary">
+        <button className="jm-btn jm-btn-primary" onClick={() => setIsModalOpen(true)}>
           <Plus size={18} /> Add New
         </button>
       </div>
+
+      {/* Add Transaction Modal */}
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        title="Add New Transaction"
+        footer={
+          <>
+            <button className="jm-btn jm-btn-secondary" onClick={() => setIsModalOpen(false)}>Cancel</button>
+            <button className="jm-btn jm-btn-primary" onClick={handleAddSubmit}>Save Transaction</button>
+          </>
+        }
+      >
+        <form onSubmit={handleAddSubmit}>
+          <div className="form-group">
+            <label className="jm-label">Recipient / Source</label>
+            <input 
+              type="text" 
+              className="jm-input" 
+              required 
+              value={formData.recipientName}
+              onChange={e => setFormData({...formData, recipientName: e.target.value})}
+              placeholder="e.g. Starbucks, Salary"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="form-group mb-0">
+              <label className="jm-label">Amount ($)</label>
+              <input 
+                type="number" 
+                step="0.01"
+                className="jm-input" 
+                required 
+                value={formData.amount}
+                onChange={e => setFormData({...formData, amount: e.target.value})}
+                placeholder="0.00"
+              />
+            </div>
+            <div className="form-group mb-0">
+              <label className="jm-label">Type</label>
+              <select 
+                className="jm-select"
+                value={formData.type}
+                onChange={e => setFormData({...formData, type: e.target.value})}
+              >
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+              </select>
+            </div>
+          </div>
+          <div className="form-group">
+            <label className="jm-label">Category</label>
+            <select 
+              className="jm-select"
+              value={formData.category}
+              onChange={e => setFormData({...formData, category: e.target.value})}
+            >
+              {categories.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div className="form-group">
+            <label className="jm-label">Notes (Optional)</label>
+            <textarea 
+              className="jm-input" 
+              style={{ minHeight: '80px', resize: 'vertical' }}
+              value={formData.notes}
+              onChange={e => setFormData({...formData, notes: e.target.value})}
+            />
+          </div>
+        </form>
+      </Modal>
 
       <div className="jm-card mb-6">
         <div className="flex flex-col md:flex-row gap-4 mb-6">

@@ -1,9 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useFinance } from '../context/FinanceContext';
 import { Target, Plus } from 'lucide-react';
+import Modal from '../components/Modal';
 
 export default function Goals() {
-  const { goals } = useFinance();
+  const { goals, addGoal, updateGoal } = useFinance();
+  const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
+  const [isFundModalOpen, setIsFundModalOpen] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState(null);
+
+  // Form States
+  const [goalName, setGoalName] = useState('');
+  const [targetAmount, setTargetAmount] = useState('');
+  const [targetDate, setTargetDate] = useState('');
+  const [fundAmount, setFundAmount] = useState('');
+
+  const handleGoalSubmit = (e) => {
+    e.preventDefault();
+    if (!goalName || !targetAmount) return;
+    addGoal({
+      name: goalName,
+      targetAmount: parseFloat(targetAmount),
+      targetDate: new Date(targetDate).getTime()
+    });
+    setIsGoalModalOpen(false);
+    setGoalName('');
+    setTargetAmount('');
+    setTargetDate('');
+  };
+
+  const handleFundSubmit = (e) => {
+    e.preventDefault();
+    if (!fundAmount || !selectedGoal) return;
+    updateGoal(selectedGoal.id, parseFloat(fundAmount));
+    setIsFundModalOpen(false);
+    setFundAmount('');
+    setSelectedGoal(null);
+  };
 
   return (
     <div className="goals-container">
@@ -12,10 +45,89 @@ export default function Goals() {
           <h1 className="mb-2">Savings Goals</h1>
           <p>Track your progress towards your financial targets.</p>
         </div>
-        <button className="jm-btn jm-btn-primary">
+        <button className="jm-btn jm-btn-primary" onClick={() => setIsGoalModalOpen(true)}>
           <Plus size={18} /> New Goal
         </button>
       </div>
+
+      {/* New Goal Modal */}
+      <Modal 
+        isOpen={isGoalModalOpen} 
+        onClose={() => setIsGoalModalOpen(false)} 
+        title="Create New Savings Goal"
+        footer={
+          <>
+            <button className="jm-btn jm-btn-secondary" onClick={() => setIsGoalModalOpen(false)}>Cancel</button>
+            <button className="jm-btn jm-btn-primary" onClick={handleGoalSubmit}>Create Goal</button>
+          </>
+        }
+      >
+        <form onSubmit={handleGoalSubmit}>
+          <div className="form-group">
+            <label className="jm-label">Goal Name</label>
+            <input 
+              type="text" 
+              className="jm-input" 
+              placeholder="e.g. New Car, Vacation"
+              value={goalName}
+              onChange={e => setGoalName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label className="jm-label">Target Amount ($)</label>
+            <input 
+              type="number" 
+              className="jm-input" 
+              placeholder="0.00"
+              value={targetAmount}
+              onChange={e => setTargetAmount(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label className="jm-label">Target Date</label>
+            <input 
+              type="date" 
+              className="jm-input" 
+              value={targetDate}
+              onChange={e => setTargetDate(e.target.value)}
+              required
+            />
+          </div>
+        </form>
+      </Modal>
+
+      {/* Add Funds Modal */}
+      <Modal 
+        isOpen={isFundModalOpen} 
+        onClose={() => setIsFundModalOpen(false)} 
+        title={`Add Funds to ${selectedGoal?.name}`}
+        footer={
+          <>
+            <button className="jm-btn jm-btn-secondary" onClick={() => setIsFundModalOpen(false)}>Cancel</button>
+            <button className="jm-btn jm-btn-primary" onClick={handleFundSubmit}>Add Amount</button>
+          </>
+        }
+      >
+        <form onSubmit={handleFundSubmit}>
+          <div className="form-group">
+            <label className="jm-label">Contribution Amount ($)</label>
+            <input 
+              type="number" 
+              className="jm-input" 
+              placeholder="0.00"
+              value={fundAmount}
+              onChange={e => setFundAmount(e.target.value)}
+              required
+              autoFocus
+            />
+          </div>
+          <p className="text-small text-secondary">
+            This will be added to your current progress of ${selectedGoal?.currentAmount.toLocaleString()}.
+          </p>
+        </form>
+      </Modal>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {goals.map(goal => {
@@ -61,7 +173,16 @@ export default function Goals() {
               </div>
 
               <div className="flex gap-4 border-t pt-4" style={{ borderColor: 'var(--border-color)' }}>
-                <button className="jm-btn jm-btn-secondary flex-1" style={{ fontSize: '0.875rem', padding: '0.5rem' }}>Add Funds</button>
+                <button 
+                  className="jm-btn jm-btn-secondary flex-1" 
+                  style={{ fontSize: '0.875rem', padding: '0.5rem' }}
+                  onClick={() => {
+                    setSelectedGoal(goal);
+                    setIsFundModalOpen(true);
+                  }}
+                >
+                  Add Funds
+                </button>
                 <button className="jm-btn jm-btn-secondary flex-1" style={{ fontSize: '0.875rem', padding: '0.5rem' }}>Edit Goal</button>
               </div>
             </div>

@@ -4,8 +4,9 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
-import { TrendingUp, TrendingDown, CreditCard, ArrowRight, Wallet, LayoutGrid } from 'lucide-react';
+import { TrendingUp, TrendingDown, CreditCard, ArrowRight, Wallet, LayoutGrid, Plus } from 'lucide-react';
 import { format } from 'date-fns';
+import Modal from '../components/Modal';
 
 const MetricCard = ({ title, amount, percentageChange, icon: Icon, isCurrency = true }) => {
   const isPositive = percentageChange >= 0;
@@ -29,14 +30,32 @@ const MetricCard = ({ title, amount, percentageChange, icon: Icon, isCurrency = 
 };
 
 export default function Dashboard() {
-  const { metrics, transactions, budgets, cards, user } = useFinance();
+  const { metrics, transactions, budgets, cards, user, addTransaction } = useFinance();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    recipientName: '',
+    amount: '',
+    type: 'expense',
+    category: 'Food & Grocery',
+    status: 'completed',
+    notes: ''
+  });
+
+  const categories = ["Salary", "Food & Grocery", "Transportation", "Entertainment", "Healthcare", "Travel", "Subscriptions", "Other"];
+
+  const handleAddSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.recipientName || !formData.amount) return;
+    addTransaction({ ...formData, amount: parseFloat(formData.amount) });
+    setIsModalOpen(false);
+    setFormData({ recipientName: '', amount: '', type: 'expense', category: 'Food & Grocery', status: 'completed', notes: '' });
+  };
   
   // Mock percentage changes
   const incomeChange = 5.2;
   const expenseChange = -2.1;
   const savingsChange = 12.5;
 
-  // Transform transactions into chart data (mocking the last 6 months for example)
   const barData = [
     { name: 'Jan', fixed: 4000, variable: 2400 },
     { name: 'Feb', fixed: 3000, variable: 1398 },
@@ -54,7 +73,7 @@ export default function Dashboard() {
     .slice(0, 5);
 
   const formatAmount = (amount, type) => {
-    return `${type === 'income' ? '+' : '-'}$${amount.toFixed(2)}`;
+    return `${type === 'income' ? '+' : '-'}$${parseFloat(amount).toFixed(2)}`;
   };
 
   const currentSpent = budgets.reduce((acc, b) => acc + b.spentAmount, 0);
@@ -66,10 +85,32 @@ export default function Dashboard() {
           <h1 className="mb-2">Dashboard Overview</h1>
           <p>Welcome back, {user?.name.split(' ')[0]}. Here is your financial summary.</p>
         </div>
-        <button className="jm-btn jm-btn-primary">
-          <Wallet size={18} /> Add Transaction
+        <button className="jm-btn jm-btn-primary" onClick={() => setIsModalOpen(true)}>
+          <Plus size={18} /> Add Transaction
         </button>
       </div>
+
+      {/* Add Transaction Modal */}
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        title="Quick Add Transaction"
+        footer={
+          <>
+            <button className="jm-btn jm-btn-secondary" onClick={() => setIsModalOpen(false)}>Cancel</button>
+            <button className="jm-btn jm-btn-primary" onClick={handleAddSubmit}>Save</button>
+          </>
+        }
+      >
+        <form onSubmit={handleAddSubmit}>
+          <div className="form-group"><label className="jm-label">Name</label><input type="text" className="jm-input" required value={formData.recipientName} onChange={e => setFormData({...formData, recipientName: e.target.value})} /></div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="form-group"><label className="jm-label">Amount</label><input type="number" step="0.01" className="jm-input" required value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} /></div>
+            <div className="form-group"><label className="jm-label">Type</label><select className="jm-select" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}><option value="expense">Expense</option><option value="income">Income</option></select></div>
+          </div>
+          <div className="form-group"><label className="jm-label">Category</label><select className="jm-select" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>{categories.map(c => <option key={c} value={c}>{c}</option>)}</select></div>
+        </form>
+      </Modal>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <MetricCard 
