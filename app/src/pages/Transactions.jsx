@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useFinance } from '../context/FinanceContext';
-import { Search, Filter, Plus } from 'lucide-react';
+import { Search, Filter, Plus, Edit2, Trash2 } from 'lucide-react';
 import Modal from '../components/Modal';
 
 export default function Transactions() {
@@ -28,16 +28,43 @@ export default function Transactions() {
     return `${type === 'income' ? '+' : '-'}$${parseFloat(amount).toFixed(2)}`;
   };
 
+  const [editingTransaction, setEditingTransaction] = useState(null);
+
   const handleAddSubmit = (e) => {
     e.preventDefault();
     if (!formData.recipientName || !formData.amount) return;
     
-    addTransaction({
-      ...formData,
-      amount: parseFloat(formData.amount)
-    });
+    if (editingTransaction) {
+      updateTransaction(editingTransaction.id, {
+        ...formData,
+        amount: parseFloat(formData.amount)
+      });
+    } else {
+      addTransaction({
+        ...formData,
+        amount: parseFloat(formData.amount)
+      });
+    }
     
+    closeModal();
+  };
+
+  const openEditModal = (tx) => {
+    setEditingTransaction(tx);
+    setFormData({
+      recipientName: tx.recipientName,
+      amount: tx.amount,
+      type: tx.type,
+      category: tx.category,
+      status: tx.status,
+      notes: tx.notes || ''
+    });
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
     setIsModalOpen(false);
+    setEditingTransaction(null);
     setFormData({
       recipientName: '',
       amount: '',
@@ -67,15 +94,17 @@ export default function Transactions() {
         </button>
       </div>
 
-      {/* Add Transaction Modal */}
+      {/* Add/Edit Transaction Modal */}
       <Modal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        title="Add New Transaction"
+        onClose={closeModal} 
+        title={editingTransaction ? "Edit Transaction" : "Add New Transaction"}
         footer={
           <>
-            <button className="jm-btn jm-btn-secondary" onClick={() => setIsModalOpen(false)}>Cancel</button>
-            <button className="jm-btn jm-btn-primary" onClick={handleAddSubmit}>Save Transaction</button>
+            <button className="jm-btn jm-btn-secondary" onClick={closeModal}>Cancel</button>
+            <button className="jm-btn jm-btn-primary" onClick={handleAddSubmit}>
+              {editingTransaction ? "Update Transaction" : "Save Transaction"}
+            </button>
           </>
         }
       >
@@ -127,6 +156,18 @@ export default function Transactions() {
             </select>
           </div>
           <div className="form-group">
+            <label className="jm-label">Status</label>
+            <select 
+              className="jm-select"
+              value={formData.status}
+              onChange={e => setFormData({...formData, status: e.target.value})}
+            >
+              <option value="completed">Completed</option>
+              <option value="pending">Pending</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
+          <div className="form-group">
             <label className="jm-label">Notes (Optional)</label>
             <textarea 
               className="jm-input" 
@@ -141,18 +182,22 @@ export default function Transactions() {
       <div className="jm-card mb-6">
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2" style={{ transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} size={18} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary" size={18} />
             <input 
               type="text" 
-              className="jm-input" 
-              placeholder="Search by name, ID, or notes..." 
+              placeholder="Search by name or category..." 
+              className="jm-input pl-10" 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ paddingLeft: '2.5rem' }}
             />
           </div>
           <div className="flex gap-4">
-            <select className="jm-select" value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+            <select 
+              className="jm-select" 
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              style={{ minWidth: '150px' }}
+            >
               <option value="all">All Types</option>
               <option value="income">Income</option>
               <option value="expense">Expense</option>
@@ -163,43 +208,52 @@ export default function Transactions() {
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+        <div className="table-responsive">
+          <table className="jm-table">
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
-                <th style={{ padding: '1rem 0.5rem', fontWeight: 600 }}>Name</th>
-                <th style={{ padding: '1rem 0.5rem', fontWeight: 600 }}>ID</th>
-                <th style={{ padding: '1rem 0.5rem', fontWeight: 600 }}>Category</th>
-                <th style={{ padding: '1rem 0.5rem', fontWeight: 600 }}>Date</th>
-                <th style={{ padding: '1rem 0.5rem', fontWeight: 600 }}>Status</th>
-                <th style={{ padding: '1rem 0.5rem', fontWeight: 600, textAlign: 'right' }}>Amount</th>
-                <th style={{ padding: '1rem 0.5rem', fontWeight: 600, textAlign: 'center' }}>Action</th>
+              <tr>
+                <th>Date</th>
+                <th>Recipient / Source</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Amount</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredTransactions.map((tx) => (
-                <tr key={tx.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <td style={{ padding: '1rem 0.5rem' }}>
+                <tr key={tx.id}>
+                  <td>{new Date(tx.date).toLocaleDateString()}</td>
+                  <td>
                     <div className="flex items-center gap-3">
-                      <div style={{ width: 36, height: 36, borderRadius: '50%', backgroundColor: 'var(--bg-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                      <div style={{ width: 32, height: 32, borderRadius: '50%', backgroundColor: 'var(--bg-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.75rem' }}>
                         {tx.recipientName.charAt(0)}
                       </div>
                       <div className="font-semibold">{tx.recipientName}</div>
                     </div>
                   </td>
-                  <td style={{ padding: '1rem 0.5rem', color: 'var(--text-secondary)' }} className="text-small">{tx.id.toUpperCase()}</td>
-                  <td style={{ padding: '1rem 0.5rem' }}>{tx.category}</td>
-                  <td style={{ padding: '1rem 0.5rem', color: 'var(--text-secondary)' }}>{new Date(tx.date).toLocaleDateString()}</td>
-                  <td style={{ padding: '1rem 0.5rem' }}>
+                  <td>
+                    <span className="jm-badge">{tx.category}</span>
+                  </td>
+                  <td>
                     <span className={`jm-badge bg-${tx.status}`}>
-                      {tx.status}
+                      {tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
                     </span>
                   </td>
-                  <td style={{ padding: '1rem 0.5rem', textAlign: 'right', fontWeight: 600 }} className={tx.type === 'income' ? 'text-success' : ''}>
+                  <td className={tx.type === 'income' ? 'text-success' : 'text-danger'} style={{ fontWeight: 600 }}>
                     {formatAmount(tx.amount, tx.type)}
                   </td>
-                  <td style={{ padding: '1rem 0.5rem', textAlign: 'center' }}>
-                    <button className="icon-btn" style={{ display: 'inline-flex' }}>•••</button>
+                  <td style={{ textAlign: 'right' }}>
+                    <div className="flex justify-end gap-1">
+                      <button className="icon-btn" title="Edit" onClick={() => openEditModal(tx)}>
+                        <Edit2 size={16} />
+                      </button>
+                      <button className="icon-btn text-danger" title="Delete" onClick={() => {
+                        if (window.confirm(`Delete transaction from ${tx.recipientName}?`)) deleteTransaction(tx.id);
+                      }}>
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -5,7 +5,7 @@ import { Download, FileText, Calendar } from 'lucide-react';
 export default function Reports() {
   const { transactions, metrics, user } = useFinance();
 
-  const exportToCSV = () => {
+  const exportData = (format) => {
     const headers = ['ID', 'Type', 'Amount', 'Category', 'Recipient', 'Status', 'Date'];
     const rows = transactions.map(t => [
       t.id,
@@ -17,29 +17,48 @@ export default function Reports() {
       new Date(t.date).toLocaleDateString()
     ]);
 
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + headers.join(",") + "\n" 
-      + rows.map(e => e.join(",")).join("\n");
+    let content = "";
+    let mimeType = "";
+    let extension = "";
 
-    const encodedUri = encodeURI(csvContent);
+    if (format === 'csv') {
+      content = headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
+      mimeType = "text/csv;charset=utf-8";
+      extension = "csv";
+    } else if (format === 'json') {
+      content = JSON.stringify(transactions, null, 2);
+      mimeType = "application/json;charset=utf-8";
+      extension = "json";
+    }
+
+    const encodedUri = encodeURI("data:" + mimeType + "," + content);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `JM_Solutionss_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute("download", `JM_Solutionss_Report.${extension}`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="reports-container">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 no-print">
         <div>
           <h1 className="mb-2">Financial Reports</h1>
           <p>Generate and export summaries of your financial data.</p>
         </div>
-        <button className="jm-btn jm-btn-primary" onClick={exportToCSV}>
-          <Download size={18} /> Export CSV
-        </button>
+        <div className="flex gap-2">
+          <button className="jm-btn jm-btn-secondary" onClick={() => exportData('json')}>
+             Export JSON
+          </button>
+          <button className="jm-btn jm-btn-primary" onClick={() => exportData('csv')}>
+            <Download size={18} /> Export CSV
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -66,7 +85,7 @@ export default function Reports() {
               <span style={{ color: 'var(--jm-light-blue)' }}>${(metrics.totalIncome - metrics.totalExpense).toLocaleString()}</span>
             </div>
           </div>
-          <button className="jm-btn jm-btn-secondary w-full mt-6">View Detailed PDF</button>
+          <button className="jm-btn jm-btn-secondary w-full mt-6 no-print" onClick={handlePrint}>View Detailed PDF (Print)</button>
         </div>
 
         <div className="jm-card">

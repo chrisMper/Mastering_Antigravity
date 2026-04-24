@@ -15,15 +15,40 @@ export default function Goals() {
   const [targetDate, setTargetDate] = useState('');
   const [fundAmount, setFundAmount] = useState('');
 
+  const [editingGoal, setEditingGoal] = useState(null);
+
   const handleGoalSubmit = (e) => {
     e.preventDefault();
     if (!goalName || !targetAmount) return;
-    addGoal({
-      name: goalName,
-      targetAmount: parseFloat(targetAmount),
-      targetDate: new Date(targetDate).getTime()
-    });
+    
+    if (editingGoal) {
+      updateGoal(editingGoal.id, {
+        name: goalName,
+        targetAmount: parseFloat(targetAmount),
+        targetDate: new Date(targetDate).getTime()
+      });
+    } else {
+      addGoal({
+        name: goalName,
+        targetAmount: parseFloat(targetAmount),
+        targetDate: new Date(targetDate).getTime()
+      });
+    }
+    
+    closeGoalModal();
+  };
+
+  const openEditModal = (goal) => {
+    setEditingGoal(goal);
+    setGoalName(goal.name);
+    setTargetAmount(goal.targetAmount);
+    setTargetDate(new Date(goal.targetDate).toISOString().split('T')[0]);
+    setIsGoalModalOpen(true);
+  };
+
+  const closeGoalModal = () => {
     setIsGoalModalOpen(false);
+    setEditingGoal(null);
     setGoalName('');
     setTargetAmount('');
     setTargetDate('');
@@ -32,7 +57,7 @@ export default function Goals() {
   const handleFundSubmit = (e) => {
     e.preventDefault();
     if (!fundAmount || !selectedGoal) return;
-    updateGoal(selectedGoal.id, parseFloat(fundAmount));
+    updateGoal(selectedGoal.id, { currentAmount: selectedGoal.currentAmount + parseFloat(fundAmount) });
     setIsFundModalOpen(false);
     setFundAmount('');
     setSelectedGoal(null);
@@ -50,15 +75,17 @@ export default function Goals() {
         </button>
       </div>
 
-      {/* New Goal Modal */}
+      {/* New/Edit Goal Modal */}
       <Modal 
         isOpen={isGoalModalOpen} 
-        onClose={() => setIsGoalModalOpen(false)} 
-        title="Create New Savings Goal"
+        onClose={closeGoalModal} 
+        title={editingGoal ? "Edit Savings Goal" : "Create New Savings Goal"}
         footer={
           <>
-            <button className="jm-btn jm-btn-secondary" onClick={() => setIsGoalModalOpen(false)}>Cancel</button>
-            <button className="jm-btn jm-btn-primary" onClick={handleGoalSubmit}>Create Goal</button>
+            <button className="jm-btn jm-btn-secondary" onClick={closeGoalModal}>Cancel</button>
+            <button className="jm-btn jm-btn-primary" onClick={handleGoalSubmit}>
+              {editingGoal ? "Update Goal" : "Create Goal"}
+            </button>
           </>
         }
       >
@@ -183,7 +210,13 @@ export default function Goals() {
                 >
                   Add Funds
                 </button>
-                <button className="jm-btn jm-btn-secondary flex-1" style={{ fontSize: '0.875rem', padding: '0.5rem' }}>Edit Goal</button>
+                <button 
+                  className="jm-btn jm-btn-secondary flex-1" 
+                  style={{ fontSize: '0.875rem', padding: '0.5rem' }}
+                  onClick={() => openEditModal(goal)}
+                >
+                  Edit Goal
+                </button>
               </div>
             </div>
           );

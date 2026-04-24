@@ -81,6 +81,10 @@ export const FinanceProvider = ({ children }) => {
     ]);
   };
 
+  const updateTransaction = (id, updatedData) => {
+    setTransactions(transactions.map(t => t.id === id ? { ...t, ...updatedData } : t));
+  };
+
   const deleteTransaction = (id) => {
     setTransactions(transactions.filter(t => t.id !== id));
   };
@@ -96,8 +100,8 @@ export const FinanceProvider = ({ children }) => {
     setCards(cards.filter(c => c.id !== id));
   };
 
-  const updateGoal = (id, amount) => {
-    setGoals(goals.map(g => g.id === id ? { ...g, currentAmount: g.currentAmount + amount } : g));
+  const updateGoal = (id, updatedData) => {
+    setGoals(goals.map(g => g.id === id ? { ...g, ...updatedData } : g));
   };
 
   const addGoal = (goal) => {
@@ -109,7 +113,7 @@ export const FinanceProvider = ({ children }) => {
 
   const value = {
     user, setUser,
-    transactions, setTransactions, addTransaction, deleteTransaction,
+    transactions, setTransactions, addTransaction, deleteTransaction, updateTransaction,
     cards, setCards, addCard, deleteCard,
     goals, setGoals, updateGoal, addGoal,
     budgets, setBudgets,
