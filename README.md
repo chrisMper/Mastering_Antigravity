@@ -204,4 +204,15 @@ graph TD
 
 ---
 
+## Step 6 - UI Polish & UX Improvements for transactions page
 
+**What was Fixed:**
+
+- Inline Confirmation UI: I replaced the standard browser window.confirm dialog with a custom, "Premium" inline confirmation panel. This avoids issues where browsers might block dialogs and provides a smoother user experience.
+- Bubbling & Hit-box Resolution: I refined the click logic and added a confirmDeleteId state. This ensures that clicking the delete button precisely triggers the confirmation without accidentally opening the "Edit" modal.
+- Live Verification: I ran a comprehensive browser test which confirmed:
+    - Clicking the trash icon reveals the "Delete this?" confirmation.
+    - Clicking the checkmark immediately removes the transaction from the list.
+    - The Total Balance effectively updates in real-time ($5,194.01 $\rightarrow$ $5,214.01$ for a $20 expense removal).
+
+**AS PER NOW THE APP SEEMS TO BE COMPLETE. I HAVE NOT FOUND ANY BUGS OR ISSUES. THE APP IS WORKING AS EXPECTED.**
