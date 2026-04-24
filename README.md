@@ -143,6 +143,8 @@ graph TD
 - **Live Recording**: Generated a final walkthrough demonstrating the functional forms and dynamic state updates:
 ![Functional Dashboard](file:///C:/Users/chris/.gemini/antigravity/brain/381697fb-8f59-428a-a7c3-438fb713cfb6/jm_finance_dashboard_final_verify_1776992189932.webp)
 
+---
+
 ### Next Step note: 'Full CRUD Implementation & Feature Completion' SAY'S THE AGENT - BUT IN REALITY IT IS NOT COMPLETED
 
 - In the nav bar the settings, notifications buttons are not working, they are just placeholders.
